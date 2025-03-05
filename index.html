@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landing Page - UTM Tracking</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; text-align: center; }
+        .hero { background: #4CAF50; color: white; padding: 50px; }
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px; }
+        label { display: block; margin-top: 10px; }
+        input, textarea { width: 100%; padding: 8px; margin-top: 5px; }
+        button { margin-top: 10px; padding: 10px; width: 100%; background: blue; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Welcome to Our Landing Page</h1>
+        <p>Your success starts here!</p>
+    </div>
+    <div class="container">
+        <h2>Contact Us</h2>
+        <form id="contactForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+            
+            <label for="message">Message:</label>
+            <textarea id="message" name="message" required></textarea>
+            
+            <!-- Hidden UTM Fields -->
+            <input type="hidden" id="utm_source" name="utm_source">
+            <input type="hidden" id="utm_medium" name="utm_medium">
+            <input type="hidden" id="utm_campaign" name="utm_campaign">
+            <input type="hidden" id="utm_term" name="utm_term">
+            <input type="hidden" id="utm_content" name="utm_content">
+            
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+    
+    <script>
+        function getUTMParams() {
+            const urlParams = new URLSearchParams(window.location.search);
+            document.getElementById('utm_source').value = urlParams.get('utm_source') || '';
+            document.getElementById('utm_medium').value = urlParams.get('utm_medium') || '';
+            document.getElementById('utm_campaign').value = urlParams.get('utm_campaign') || '';
+            document.getElementById('utm_term').value = urlParams.get('utm_term') || '';
+            document.getElementById('utm_content').value = urlParams.get('utm_content') || '';
+            console.log("UTM Parameters Captured:", Object.fromEntries(urlParams.entries()));
+        }
+
+        window.onload = getUTMParams;
+
+        document.getElementById("contactForm").addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const jsonData = {};
+            formData.forEach((value, key) => jsonData[key] = value);
+            
+            console.log("Submitting Data:", jsonData);
+
+            fetch("http://localhost:5000/submit", {
+                method: "POST",
+                headers: { 
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(jsonData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Success:", data);
+                alert("Form submitted successfully!");
+                document.getElementById("contactForm").reset();
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Error submitting form. Please try again.");
+            });
+        });
+    </script>
+</body>
+</html>
